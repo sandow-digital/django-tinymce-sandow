@@ -10,6 +10,7 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from tinymce.compressor import gzip_compressor
 from tinymce.widgets import get_language_config
+from django.views.decorators.csrf import csrf_exempt
 
 def textareas_js(request, name, lang=None):
     """
@@ -32,6 +33,7 @@ def textareas_js(request, name, lang=None):
             content_type="application/x-javascript")
 
 
+@csrf_exempt
 def spell_check(request):
     """
     Returns a HttpResponse that implements the TinyMCE spellchecker protocol.
