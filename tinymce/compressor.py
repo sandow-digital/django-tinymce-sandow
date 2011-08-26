@@ -85,7 +85,9 @@ def gzip_compressor(request):
                 return response
 
     # Add core, with baseURL added
-	content.append(get_file_contents("tiny_mce%s.js" % suffix))
+    content.append(get_file_contents("tiny_mce%s.js" % suffix).replace(
+            "tinymce._init();", "tinymce.baseURL='%s';tinymce._init();"
+            % tinymce.settings.JS_BASE_URL))
 
     # Patch loading functions
     content.append("tinyMCE_GZ.start();")
