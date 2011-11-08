@@ -1,5 +1,12 @@
 function djangoFileBrowser(field_name, url, type, win) {
-    var url = "{{ fb_url }}?pop=2&type=" + type + "&filter_type=" + type;
+    var filter_type = "";
+
+    switch(type) {
+        case 'image': filter_type = "Image"; break;
+        case 'media': filter_type = "Video"; break;
+    }
+
+    var url = "{{ fb_url }}?pop=2&type=" + type + "&filter_type=" + filter_type;
 
     tinyMCE.activeEditor.windowManager.open(
         {
