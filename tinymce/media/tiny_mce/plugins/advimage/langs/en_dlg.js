@@ -25,6 +25,7 @@ missing_alt:"Are you sure you want to continue without including an Image Descri
 dialog_title:"Insert/edit image",
 src:"Image URL",
 alt:"Image description",
+caption: "Image caption",
 list:"Image list",
 border:"Border",
 dimensions:"Dimensions",
