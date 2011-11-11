@@ -143,6 +143,7 @@ var ImageDialog = {
 
 		tinymce.extend(args, {
 			src : nl.src.value.replace(/ /g, '%20'),
+			name : 'image-' + nl.src.value.replace(/ /g, '_'),
 			width : nl.width.value,
 			height : nl.height.value,
 			alt : nl.alt.value,
@@ -176,6 +177,14 @@ var ImageDialog = {
 			ed.dom.setAttrib('__mce_tmp', 'id', '');
 			ed.undoManager.add();
 		}
+
+		el_caption = ed.dom.createElement('Q');
+
+		el_caption.name = 'caption-' + nl.title.value.src.replace(/ /g, '_');
+                el_caption.setAttribute("class", "image-caption");
+                el_caption.style.width = nl.width.value;
+
+		el.parentNode.insertBefore(el_caption, el.nextSibling);
 
 		tinyMCEPopup.editor.execCommand('mceRepaint');
 		tinyMCEPopup.editor.focus();
