@@ -157,6 +157,12 @@ var ImageDialog = {
 			longdesc : nl.longdesc.value
 		});
 
+		tinymce.extend(caption_args, {
+			name : 'caption-' + nl.src.value.replace(/ /g, '_'),
+			'class' : 'image-caption',
+			style : 'width: ' + nl.width.value + 'px'
+		});
+
 		args.onmouseover = args.onmouseout = '';
 
 		if (f.onmousemovecheck.checked) {
@@ -175,16 +181,13 @@ var ImageDialog = {
 			ed.execCommand('mceInsertContent', false, '<img id="__mce_tmp" />', {skip_undo : 1});
 			ed.dom.setAttribs('__mce_tmp', args);
 			ed.dom.setAttrib('__mce_tmp', 'id', '');
+
+			ed.execCommand('mceInsertContent', false, '<q id="__mce_tmp" />', {skip_undo :1});
+			ed.dom.setAttribs('__mce_tmp', caption_args);
+			ed.dom.setAttrib('__mce_tmp', 'id', '');
+
 			ed.undoManager.add();
 		}
-
-		el_caption = ed.dom.createElement('Q');
-
-		el_caption.name = 'caption-' + nl.title.value.src.replace(/ /g, '_');
-                el_caption.setAttribute("class", "image-caption");
-                el_caption.style.width = nl.width.value;
-
-		el.parentNode.insertBefore(el_caption, el.nextSibling);
 
 		tinyMCEPopup.editor.execCommand('mceRepaint');
 		tinyMCEPopup.editor.focus();
