@@ -116,7 +116,7 @@ var ImageDialog = {
 	},
 
 	insertAndClose : function() {
-		var ed = tinyMCEPopup.editor, f = document.forms[0], nl = f.elements, v, args = {}, el;
+		var ed = tinyMCEPopup.editor, f = document.forms[0], nl = f.elements, v, args = {}, cargs = {}, el;
 
 		tinyMCEPopup.restoreSelection();
 
@@ -153,8 +153,15 @@ var ImageDialog = {
 			dir : nl.dir.value,
 			lang : nl.lang.value,
 			usemap : nl.usemap.value,
-			longdesc : nl.longdesc.value
+			longdesc : nl.longdesc.value,
+			name : 'image-' + nl.src.value.replace(/ /g, '_')
 		});
+
+		cargs = {
+			name : 'caption-' + nl.src.value.replace(/ /g, '_'),
+			'class' : 'image-caption',
+			style : 'width:' + nl.width.value + 'px'
+		};
 
 		args.onmouseover = args.onmouseout = '';
 
@@ -174,6 +181,11 @@ var ImageDialog = {
 			ed.execCommand('mceInsertContent', false, '<img id="__mce_tmp" />', {skip_undo : 1});
 			ed.dom.setAttribs('__mce_tmp', args);
 			ed.dom.setAttrib('__mce_tmp', 'id', '');
+
+			ed.execCommand('mceInsertContent', false, '<q id="__mce_tmp">' + nl.caption.value  + '</q>', {skip_undo : 1});
+			ed.dom.setAttribs('__mce_tmp', cargs);
+			ed.dom.setAttrib('__mce_tmp', 'id', '');
+
 			ed.undoManager.add();
 		}
 
