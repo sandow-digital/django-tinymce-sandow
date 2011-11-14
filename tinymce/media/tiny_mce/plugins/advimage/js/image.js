@@ -37,6 +37,14 @@ var ImageDialog = {
 			nl.longdesc.value = dom.getAttrib(n, 'longdesc');
 			nl.insert.value = ed.getLang('update');
 
+            if (n.name && n.name.match(/^image-/)) {
+                cel = dom.get('caption-' + n.name.substring(6));
+
+                if (cel && cel.nodeName == 'Q') {
+					nl.caption.value = cel.childNodes[0].nodeValue;
+				}
+			}
+
 			if (/^\s*this.src\s*=\s*\'([^\']+)\';?\s*$/.test(dom.getAttrib(n, 'onmouseover')))
 				nl.onmouseoversrc.value = dom.getAttrib(n, 'onmouseover').replace(/^\s*this.src\s*=\s*\'([^\']+)\';?\s*$/, '$1');
 
@@ -116,7 +124,7 @@ var ImageDialog = {
 	},
 
 	insertAndClose : function() {
-		var ed = tinyMCEPopup.editor, f = document.forms[0], nl = f.elements, v, args = {}, el;
+		var ed = tinyMCEPopup.editor, f = document.forms[0], nl = f.elements, v, args = {}, cargs = {}, wargs = {}, el, cel, wel, si;
 
 		tinyMCEPopup.restoreSelection();
 
@@ -141,27 +149,42 @@ var ImageDialog = {
 			};
 		}
 
+		if (nl.src.value.indexOf('/') > -1)
+			si = nl.src.value.substring(nl.src.value.lastIndexOf('/') + 1);
+		else
+			si = nl.src.value;
+
+		si = si.replace(/[^a-zA-Z0-9-]+/g,'');
+
 		tinymce.extend(args, {
 			src : nl.src.value.replace(/ /g, '%20'),
-			name : 'image-' + nl.src.value.replace(/ /g, '_'),
 			width : nl.width.value,
 			height : nl.height.value,
 			alt : nl.alt.value,
 			title : nl.title.value,
 			'class' : getSelectValue(f, 'class_list'),
 			style : nl.style.value,
-			id : nl.id.value,
+			id : nl.id.value > '' ? nl.id.value : 'image-' + si,
 			dir : nl.dir.value,
 			lang : nl.lang.value,
 			usemap : nl.usemap.value,
-			longdesc : nl.longdesc.value
+			longdesc : nl.longdesc.value,
+			name : 'image-' + si
 		});
 
-		tinymce.extend(caption_args, {
-			name : 'caption-' + nl.src.value.replace(/ /g, '_'),
+		cargs = {
+			id : 'caption-' + si,
+			name : 'caption-' + si,
 			'class' : 'image-caption',
-			style : 'width: ' + nl.width.value + 'px'
-		});
+			style : 'width:' + nl.width.value + 'px'
+		};
+
+        wargs = {
+            name : 'wrapper-' + si,
+            id : 'wrapper-' + si,
+            'class' : 'photo_caption_block',
+            style : 'min-width:' + nl.width.value + 'px; width:' + nl.width.value + 'px',
+        }
 
 		args.onmouseover = args.onmouseout = '';
 
@@ -176,18 +199,66 @@ var ImageDialog = {
 		el = ed.selection.getNode();
 
 		if (el && el.nodeName == 'IMG') {
+			if (el.name && el.name.match(/^image-/)) {
+				cel = ed.dom.get('caption-' + el.name.substring(6));
+
+				if (cel && cel.nodeName == 'Q')
+					cel.parentNode.removeChild(cel); // Caption maay be empty so we delete it rather than check it
+
+				wel = ed.dom.get('wrapper-' + el.name.substring(6));
+
+				if (wel && wel.nodeName == 'SPAN') {
+					ed.dom.setAttribs(wel, wargs);
+				}
+			}
+
+			// Note the above code utilizes existing attributes but this line replaces them with the new data
 			ed.dom.setAttribs(el, args);
+
+			if (el.name && el.name.match(/^image-/)) {
+				cel = ed.dom.get('caption-' + el.name.substring(6));
+
+				if (cel && cel.nodeName == 'Q') {
+					if (nl.caption.value > '' )
+						cel.innerHTML = nl.caption.value;
+					else
+						cel.parentNode.removeChild(cel);
+				} else if (nl.caption.value > '' ) {
+					cel = ed.dom.create('q', cargs, nl.caption.value);
+
+					ed.dom.insertAfter(cel, el);
+				}
+			}
 		} else {
 			ed.execCommand('mceInsertContent', false, '<img id="__mce_tmp" />', {skip_undo : 1});
 			ed.dom.setAttribs('__mce_tmp', args);
-			ed.dom.setAttrib('__mce_tmp', 'id', '');
+			// ed.dom.setAttrib('__mce_tmp', 'id', '');
 
-			ed.execCommand('mceInsertContent', false, '<q id="__mce_tmp" />', {skip_undo :1});
-			ed.dom.setAttribs('__mce_tmp', caption_args);
-			ed.dom.setAttrib('__mce_tmp', 'id', '');
+			if (nl.caption.value > '') {
+				ed.execCommand('mceInsertContent', false, '<q id="__mce_tmp">' + nl.caption.value  + '</q>', {skip_undo : 1});
+				ed.dom.setAttribs('__mce_tmp', cargs);
+				// ed.dom.setAttrib('__mce_tmp', 'id', '');
+			}
 
-			ed.undoManager.add();
+			el = ed.dom.get('image-' + si);
 		}
+
+		wel = ed.dom.get('wrapper-' + si);
+
+		if (typeof wel === 'undefined' || !wel || wel.nodeName != 'SPAN') {
+			wel = ed.dom.create('span', wargs);
+
+			ed.dom.insertAfter(wel, el);
+		}
+
+		wel.appendChild(el);
+
+		cel = ed.dom.get('caption-' + si);
+
+		if (cel && cel.nodeName == 'Q')
+			wel.appendChild(cel);
+
+		ed.undoManager.add();
 
 		tinyMCEPopup.editor.execCommand('mceRepaint');
 		tinyMCEPopup.editor.focus();
