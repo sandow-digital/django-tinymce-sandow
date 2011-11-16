@@ -19,7 +19,7 @@ del {color:red; text-decoration:line-through}
 cite {border-bottom:1px dashed blue}
 acronym {border-bottom:1px dotted #CCC; cursor:help}
 abbr {border-bottom:1px dashed #CCC; cursor:help}
-q.image-caption {position:relative; display:block; float:none; font-weight:bold; font-size:11px; text-align:left;}
+q.image-caption {position:relative; display:block; float:none; color:#999999 text-align:left;}
 blockquote:before, blockquote:after, q:before, q:after {content:none;}
 blockquote, q {quotes:none;}
 span.photo_caption_block {overflow:visible; display:inline-block;}
